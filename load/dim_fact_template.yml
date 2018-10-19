@@ -1,0 +1,10 @@
+steps:
+  - type: hive
+    vars:
+      yesterday: # 如果没有值,默认为当前日期前一天
+        type: string
+        value:
+    sqls:
+      - sql:
+          path:
+          value:

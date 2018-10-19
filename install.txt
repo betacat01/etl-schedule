@@ -1,0 +1,64 @@
+
+安装python-util工具包
+git clone git@github.com:zhangxin1988/python-util.git
+python setup.py install
+
+yum install python-devel
+yum install gcc-c++
+ 
+wget https://bootstrap.pypa.io/ez_setup.py -O - | python
+easy_install pip
+
+pip install apscheduler==3.2.0
+pip install dbutils==1.1
+
+安装mysql客户端－－注意centos7，需要先把mariadb删除掉(yum list installed | grep "mariadb*"  )
+yum update mysql
+yum install mysql-devel （）
+
+安装 mysql-python(二选一，建议方式二)
+（1）方式一
+https://pypi.python.org/pypi/MySQL-python
+python setup.py install
+（2）方式二
+pip install mysql-python
+
+安装其他包
+pip install pyaml==16.9.0
+
+pip install xlsxwriter==0.9.4
+
+# pyhs2依赖
+yum install cyrus-sasl-devel cyrus-sasl-gssapi cyrus-sasl-md5 cyrus-sasl-plain
+
+pip install pyhs2==0.6.0
+
+pip install pymongo==3.4.0
+
+pip install pyodps==0.6.9
+
+# python-ldap依赖
+yum install  openldap-devel
+pip install python-ldap==2.4.30
+
+
+创建datax过程监控表：
+CREATE TABLE `t_datax_monitor` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `p_day` date DEFAULT NULL,
+  `database_name` varchar(100) DEFAULT NULL,
+  `table_name` varchar(100) DEFAULT NULL,
+  `start_time` datetime DEFAULT NULL COMMENT '开始时间',
+  `end_time` datetime DEFAULT NULL COMMENT '结束时间',
+  `execute_seconds` int(11) DEFAULT NULL COMMENT '任务总计耗时s',
+  `total_rows` bigint(11) DEFAULT NULL COMMENT '读取记录总数',
+  `error_rows` bigint(11) DEFAULT NULL COMMENT '同步失败总数',
+  `avg_network_flow` bigint(11) DEFAULT NULL COMMENT '任务平均流量',
+  `write_speed` bigint(11) DEFAULT NULL COMMENT '记录写入速度',
+  `transform_input_total` bigint(11) DEFAULT NULL COMMENT '转换输入总数',
+  `transform_output_total` bigint(11) DEFAULT NULL COMMENT '转换输出总数',
+  PRIMARY KEY (`id`),
+  KEY `idx_p_day_database_name_table_name` (`p_day`,`database_name`,`table_name`)
+) ENGINE=InnoDB AUTO_INCREMENT=30148 DEFAULT CHARSET=utf8
+
+
