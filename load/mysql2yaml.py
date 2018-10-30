@@ -19,6 +19,7 @@ def get_option_parser():
 
     parser = OptionParser(usage=usage)
 
+    parser.add_option("-i", "--instance", dest="instance", action="store", type="string", help="mysql instance")
     parser.add_option("-d", "--from", dest="db", action="store", type="string", help="mysql database")
     parser.add_option("-t", "--table", dest="table", action="store", help="database table")
     parser.add_option("-p", "--path", dest="path", action="store",
@@ -147,8 +148,8 @@ def mkdirs(paths):
             os.makedirs(path)
 
 
-def run(db, path, stable):
-    connection = Connection.get_mysql_connection(config_util, db, mysql_instance_name="business")
+def run(mysql_instance,db, path, stable):
+    connection = Connection.get_mysql_connection(config_util, db, mysql_instance_name=mysql_instance)
     tables = get_tables(connection)
     schedule_list = []
     sql_dir = path
@@ -313,8 +314,12 @@ if __name__ == '__main__':
 
     print options
 
+    mysql_instance = "business"
+
     if options.db is None or options.path is None:
         optParser.print_help()
         sys.exit(1)
     else:
-        run(options.db, options.path + "/gen", options.table)
+        if options.instance is not None:
+            mysql_instance = options.instance
+        run(mysql_instance,options.db, options.path + "/gen", options.table)
