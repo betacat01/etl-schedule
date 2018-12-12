@@ -9,7 +9,7 @@ import random
 import pyhs2
 import bin.global_constant as global_constant
 
-class HiveUtil:
+class SparkSqlUtil:
     def __init__(self):
         self.config = global_constant.configUtil
         self.sqls = []
@@ -103,10 +103,11 @@ class HiveUtil:
             return -1
 
     def run_sql_client(self):
-        hiveHome = self.config.get("hive.path")
-        if hiveHome is None:
-            raise Exception("HIVE_HOME 环境变量没有设置")
-        command_bin = hiveHome + "/bin/hive"
+        spark_home = self.config.get("spark.path")
+        if spark_home is None:
+            raise Exception("spark.path 没有设置")
+        spark_sql_opt = self.config.get("spark.sql.opt")
+        command_bin = spark_home + "/bin/spark-sql "
         tmpdir = self.config.get("tmp.path") + "/hqls"
         try:
             for sql in self.sqls:
@@ -128,11 +129,12 @@ class HiveUtil:
 
                 print "start run hql: \n" + str(sql)
                 sys.stdout.flush()
-
-                code = os.system(command_bin + " -f " + tmppath)
+                spark_exe_cmd = command_bin + spark_sql_opt + " -i " + tmppath
+                print spark_exe_cmd
+                code = os.system(spark_exe_cmd)
                 #os.remove(tmppath)
                 if code != 0:
-                    print "hive run hql error exit"
+                    print "spark-sql run hql error exit"
                     sys.stdout.flush()
                     return -1
             return 0

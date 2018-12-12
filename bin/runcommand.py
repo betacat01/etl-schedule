@@ -13,6 +13,7 @@ import traceback
 project_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(project_path)
 from export.hiveutil import HiveUtil
+from export.sparksqlutil import SparkSqlUtil
 
 '''
 用来运行具体的脚本
@@ -67,6 +68,17 @@ class RunCommand(object):
                             code = self.run_single_command(command)
                             if code != 0:
                                 return 1
+                if step_type == 'spark_sql':
+                    print "spark sql"
+                    (vars, sqls, sql_paths) = yaml_parser.parse_spark_sql(step, init_day)
+                    if sqls or sql_paths:
+                        spark_sql_util = SparkSqlUtil()
+                        spark_sql_util.add_vars(vars)
+                        spark_sql_util.add_sqls(sqls)
+                        spark_sql_util.add_sql_paths(yaml_sql_path, sql_paths)
+                        code = spark_sql_util.run_sql_client()
+                        if code != 0:
+                            return 1
             return 0
         else:
             return 0
