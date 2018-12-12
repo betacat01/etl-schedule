@@ -129,7 +129,7 @@ class SparkSqlUtil:
 
                 print "start run hql: \n" + str(sql)
                 sys.stdout.flush()
-                spark_exe_cmd = command_bin + spark_sql_opt + " -i " + tmppath
+                spark_exe_cmd = command_bin + spark_sql_opt + " -f " + tmppath
                 print spark_exe_cmd
                 code = os.system(spark_exe_cmd)
                 #os.remove(tmppath)
