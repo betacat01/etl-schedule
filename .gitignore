@@ -3,3 +3,6 @@
 bin/test_main.py
 config/local/config.ini
 config/product/config.ini
+test/*
+log/*
+data_warehouse/*
