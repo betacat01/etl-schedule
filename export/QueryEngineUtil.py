@@ -3,13 +3,13 @@
 
 import os
 import sys
+from abc import abstractmethod
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import datetime
-import random
-import pyhs2
 import bin.global_constant as global_constant
 
-class SparkSqlUtil:
+
+class QueryEngineUtil:
     def __init__(self):
         self.config = global_constant.configUtil
         self.sqls = []
@@ -44,23 +44,15 @@ class SparkSqlUtil:
         sql_handler.flush()
         sql_handler.close()
 
+    @abstractmethod
     def get_connection(self):
-        host = self.config.get("spark.thrift.host")
-        port = self.config.get("spark.thrift.port")
-        username = self.config.get("spark.thrift.username")
-        password = self.config.get("spark.thrift.password")
-        connection = pyhs2.connect(host=host,
-                                   port=int(port),
-                                   authMechanism="PLAIN",
-                                   user=username,
-                                   password=password)
-        return connection
+        pass
 
     def run_sql_count(self, sql):
         try:
             connection = self.get_connection()
             cursor = connection.cursor()
-            print "start run hql:" + str(sql)
+            print "start run sql count:" + str(sql)
             sql = sql.replace(";", "")
             cursor.execute(sql)
             count = 0
@@ -73,11 +65,11 @@ class SparkSqlUtil:
             connection.close()
             return 0
 
-    def run_sql(self, sql):
+    def run_sql_by_connection(self, sql):
         try:
             connection = self.get_connection()
             cursor = connection.cursor()
-            print "start run hql:" + str(sql)
+            print "start run sql:" + str(sql)
             sql = sql.replace(";", "")
             cursor.execute(sql)
             connection.close()
@@ -87,12 +79,12 @@ class SparkSqlUtil:
             connection.close()
             return -1
 
-    def run_sql_connection(self):
+    def run_all_sqls_by_connection(self):
         try:
             connection = self.get_connection()
             cursor = connection.cursor()
             for sql in self.sqls:
-                print "start run hql:" + str(sql)
+                print "start run sql:" + str(sql)
                 sql = sql.replace(";", "")
                 cursor.execute(sql)
             connection.close()
@@ -102,46 +94,10 @@ class SparkSqlUtil:
             connection.close()
             return -1
 
-    def run_sql_client(self):
-        spark_home = self.config.get("spark.path")
-        if spark_home is None:
-            raise Exception("spark.path 没有设置")
-        spark_sql_opt = self.config.get("spark.sql.opt")
-        command_bin = spark_home + "/bin/spark-sql "
-        tmpdir = self.config.get("tmp.path") + "/hqls"
-        try:
-            for sql in self.sqls:
-                mills = datetime.datetime.now().microsecond
-                rand = random.randint(1, 100)
-                if not os.path.exists(tmpdir):
-                    os.makedirs(tmpdir)
-                tmppath = tmpdir + "/" + str(mills) + "-" + str(rand) + ".hql"
-                print "tmp path " + str(tmppath)
-                sys.stdout.flush()
-                tmp_file = open(tmppath, "w")
-                for var in self.vars:
-                    tmp_file.write(var + '\n')
-                    print var
-                tmp_file.flush()
-                tmp_file.write(sql)
-                tmp_file.flush()
-                tmp_file.close()
+    @abstractmethod
+    def run_sql_by_client(self):
+        pass
 
-                print "start run hql: \n" + str(sql)
-                sys.stdout.flush()
-                spark_exe_cmd = command_bin + spark_sql_opt + " -f " + tmppath
-                print spark_exe_cmd
-                code = os.system(spark_exe_cmd)
-                #os.remove(tmppath)
-                if code != 0:
-                    print "spark-sql run hql error exit"
-                    sys.stdout.flush()
-                    return -1
-            return 0
-        except Exception, e:
-            print(e)
-            sys.stdout.flush()
-            return 1
 
     def check_run_code(self, code=-1):
         if code == 0:
