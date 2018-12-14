@@ -49,7 +49,7 @@ class YamlParser(object):
     返回 包含sql,vars
     '''
 
-    def parse_hive(self, step_dict, init_day):
+    def parse_hive_sql(self, step_dict, init_day):
         vars = []
         sqls = []
         sql_paths = []
@@ -76,32 +76,6 @@ class YamlParser(object):
                         sql_paths.append(sql_dict_value['path'])
         return (vars, sqls, sql_paths)
 
-    def parse_spark_sql(self, step_dict, init_day):
-        vars = []
-        sqls = []
-        sql_paths = []
-        if step_dict.has_key('vars'):
-            vars_dict = step_dict['vars']
-            if vars_dict is not None and len(vars_dict) > 0:
-                for (var_key, var_value_dict) in vars_dict.items():
-                    var_type = var_value_dict['type']
-                    if var_value_dict.has_key('value'):
-                        var_value = var_value_dict['value']
-                    map_value = self.vars_map(var_key, var_value, init_day)
-                    if var_type == "string":
-                        vars.append("set hivevar:" + str(var_key) + "='" + str(map_value) + "';")
-                    else:
-                        vars.append("set hivevar:" + str(var_key) + "=" + str(map_value) + ";")
-        if step_dict.has_key('sqls'):
-            sql_list = step_dict['sqls']
-            if sql_list and len(sql_list) > 0:
-                for sql_dict in sql_list:
-                    sql_dict_value = sql_dict['sql']
-                    if sql_dict_value.has_key('value') and sql_dict_value['value']:
-                        sqls.append(sql_dict_value['value'])
-                    if sql_dict_value.has_key('path') and sql_dict_value['path']:
-                        sql_paths.append(sql_dict_value['path'])
-        return (vars, sqls, sql_paths)
 
 
     def parse_export(self, python_path, project_path, step_dict, init_day):
