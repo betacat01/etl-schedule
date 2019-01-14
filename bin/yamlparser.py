@@ -10,23 +10,24 @@ import datetime
 
 DateUtil = global_constant.dateUtil
 
+
 class YamlParser(object):
-    def vars_map(self, key, value, init_day, format=None):
-        init_date = DateUtil.parse_date(init_day, None)
+    def vars_map(self, key, value, init_day, format='%Y-%m-%d'):
+        init_date = DateUtil.parse_date(init_day, format)
         if key == 'today':
             if value is None:
-                return DateUtil.get_now_fmt(format, init_date)
+                return DateUtil.get_now_fmt('%Y-%m-%d', init_date)
             else:
                 return value
         elif key == 'yesterday':
             if value is None:
-                return DateUtil.get_yesterday_fmt(format, init_date)
+                return DateUtil.get_yesterday_fmt('%Y-%m-%d', init_date)
             else:
                 return value
         elif key == 'intervalday':
             if value is None:
                 raise Exception("interval day is none")
-            return DateUtil.get_interval_day_fmt(int(value), format, init_date)
+            return DateUtil.get_interval_day_fmt(int(value), '%Y-%m-%d', init_date)
         elif key == 'lastMonth':
             if value is None:
                 return DateUtil.get_last_month(init_date)
@@ -42,6 +43,31 @@ class YamlParser(object):
                 return DateUtil.get_yesterday_month(init_date)
             else:
                 return value
+
+        elif key == 'pre_1_hours_day':
+            # 前1小时所在日期
+            if value is None:
+                return DateUtil.get_add_hours_day(init_date, -1)
+            else:
+                return value
+        elif key == 'pre_1_hours_hour':
+            # 前1小时所在小时
+            if value is None:
+                return DateUtil.get_add_hours_hour(init_date, -1)
+            else:
+                return value
+        elif key == 'pre_2_hours_day':
+            # 前1小时所在日期
+            if value is None:
+                return DateUtil.get_add_hours_day(init_date, -2)
+            else:
+                return value
+        elif key == 'pre_2_hours_hour':
+            # 前1小时所在小时
+            if value is None:
+                return DateUtil.get_add_hours_hour(init_date, -2)
+            else:
+                return value
         else:
             return value
 
@@ -49,7 +75,7 @@ class YamlParser(object):
     返回 包含sql,vars
     '''
 
-    def parse_hive_sql(self, step_dict, init_day):
+    def parse_hive_sql(self, step_dict, init_day, fmt='%Y-%m-%d'):
         vars = []
         sqls = []
         sql_paths = []
@@ -60,7 +86,7 @@ class YamlParser(object):
                     var_type = var_value_dict['type']
                     if var_value_dict.has_key('value'):
                         var_value = var_value_dict['value']
-                    map_value = self.vars_map(var_key, var_value, init_day)
+                    map_value = self.vars_map(var_key, var_value, init_day, format=fmt)
                     if var_type == "string":
                         vars.append("set hivevar:" + str(var_key) + "='" + str(map_value) + "';")
                     else:
