@@ -42,7 +42,7 @@ class RunCommand(object):
         code = child.wait()
         return code
 
-    def run_yaml(self, yaml_file, init_day=None):
+    def run_yaml(self, yaml_file, init_day=None, fmt='%Y-%m-%d'):
         yaml_sql_path = self.config.get("job.script.path") + "/sql"
         yaml_parser = YamlParser()
         yaml_file = open(yaml_file, 'r')
@@ -52,7 +52,7 @@ class RunCommand(object):
             for step in steps:
                 step_type = step['type']
                 if step_type == 'hive' or step_type == 'spark_sql':
-                    (vars, sqls, sql_paths) = yaml_parser.parse_hive_sql(step, init_day)
+                    (vars, sqls, sql_paths) = yaml_parser.parse_hive_sql(step, init_day, fmt)
                     if sqls or sql_paths:
                         if step_type == 'hive':
                             query_engine_util = HiveUtil()

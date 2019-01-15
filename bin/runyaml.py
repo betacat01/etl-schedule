@@ -28,9 +28,12 @@ class RunYaml(object):
         parser.add_option("-p", "--path", dest="path", action="store", type="string",
                           help="yaml file path")
 
+        parser.add_option("--date_format", dest="date_format", action="store", default='%Y-%m-%d', type="string",
+                          help="run_date参数的日期格式化参数，默认%Y-%m-%d")
+
         return parser
 
-    def run_command(self, path, p_day):
+    def run_command(self, path, p_day, fmt='%Y-%m-%d'):
         try:
             print("脚本位置:" + path)
 
@@ -40,7 +43,7 @@ class RunYaml(object):
             extend = os.path.splitext(path)[1]
             if extend == ".yml":
                 run_command = RunCommand()
-                code = run_command.run_yaml(path, p_day)
+                code = run_command.run_yaml(path, p_day, fmt)
                 return code
             else:
                 raise Exception("当前只支持 yml 脚本")
@@ -66,10 +69,12 @@ if __name__ == '__main__':
     run_date = options.run_date
 
     if run_date is None:
-        run_date = global_constant.dateUtil.get_now_fmt()
+        run_date = global_constant.dateUtil.get_now_fmt(fmt=options.date_format)
 
-    code = run_yaml.run_command(options.path, run_date)
+    code = run_yaml.run_command(options.path, run_date, fmt=options.date_format)
 
+    print options.date_format
+    print run_date
     if code != 0:
         sys.exit(1)
     print "运行结果:", code
