@@ -133,19 +133,21 @@ def create_hive_table(hive_db, hive_table, column_list, partition):
     #   cursor.execute("drop table " + hive_table)
     #   tables.remove(hive_table)
 
-    partition_key = None
-    partition_value = None
+    partition_list = list()
     if partition is not None:
-        partition_array = partition.split("=")
-        partition_key = partition_array[0].strip()
-        partition_value = partition_array[1].strip()
+        for each_partition in partition.split("/"):
+            partition_array = each_partition.split("=")
+            partition_key = partition_array[0].strip()
+            partition_value = partition_array[1].strip()
+            partition_list.append(partition_key + "='" + partition_value + "'")
 
+    partition_alter_str = ','.join(partition_list)
     if hive_table in tables:
         if partition_key is not None:  # 先删除再重建防止partition里面有数据
             cursor.execute(
-                    "alter table " + hive_table + " drop partition(" + partition_key + "='" + partition_value + "')")
+                    "alter table " + hive_table + " drop partition(" + partition_alter_str + ")")
             cursor.execute(
-                    "alter table " + hive_table + " add partition(" + partition_key + "='" + partition_value + "')")
+                    "alter table " + hive_table + " add partition(" + partition_alter_str + ")")
     else:
         create_column = []
         for column in column_list:
