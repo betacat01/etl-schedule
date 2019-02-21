@@ -104,7 +104,7 @@ class YamlParser(object):
 
 
 
-    def parse_export(self, python_path, project_path, step_dict, init_day):
+    def parse_export(self, python_path, project_path, step_dict, init_day, fmt):
         command_list = []
         if step_dict.has_key('ops'):
             ops_list = step_dict['ops']
@@ -114,7 +114,7 @@ class YamlParser(object):
                         command_list.append(self.export_command(python_path,
                                                                 project_path,
                                                                 command_key,
-                                                                command_value, init_day))
+                                                                command_value, init_day,fmt))
         return command_list
 
     '''
@@ -122,7 +122,7 @@ class YamlParser(object):
     '''
 
     def replace_sql_param(self, sql, vars_dict, init_day, format=None):
-        p = re.compile(r"\$\{[^\}\$\u0020]+\}")
+        p = re.compile(r"\$\{[^\}\$ ]+\}")
         m = p.findall(sql)
         if m and len(m) > 0:
             for key in m:
@@ -145,7 +145,7 @@ class YamlParser(object):
             mysql_db = mysql_db.replace("${yesterday}", process_day)
         return mysql_db
 
-    def export_command(self, python_path, project_path, command_key, command_value, init_day):
+    def export_command(self, python_path, project_path, command_key, command_value, init_day, fmt):
         mysql2hive = project_path + '/export/mysql2hive.py'
         mongo2hive = project_path + '/export/mongo2hive.py'
         hive2mysql = project_path + '/export/hive2mysql.py'
@@ -180,12 +180,12 @@ class YamlParser(object):
             if command_value.has_key("partition") and command_value['partition']:
                 command_list.append("--partition")
                 partition_value = command_value['partition']
-                partition_value = self.replace_sql_param(partition_value, vars, init_day)
+                partition_value = self.replace_sql_param(partition_value, vars, init_day, fmt)
                 command_list.append(partition_value)
             if command_value.has_key("where") and command_value['where']:
                 command_list.append("--where")
                 partition_value = command_value['where']
-                partition_value = self.replace_sql_param(partition_value, vars, init_day)
+                partition_value = self.replace_sql_param(partition_value, vars, init_day, fmt)
                 command_list.append(partition_value)
             if command_value.has_key("query_sql") and command_value['query_sql']:
                 command_list.append("--query-sql")
@@ -209,7 +209,7 @@ class YamlParser(object):
             if command_value.has_key('partition') and command_value['partition']:
                 command_list.append("--partition")
                 partition_value = command_value['partition'].strip()
-                partition_value = self.replace_sql_param(partition_value, vars, init_day)
+                partition_value = self.replace_sql_param(partition_value, vars, init_day, fmt)
                 command_list.append(partition_value)
             return command_list
         if command_key == 'hive2mysql':
@@ -219,11 +219,11 @@ class YamlParser(object):
                 vars = command_value["vars"]
             if command_value.has_key("delete_sql") and command_value["delete_sql"]:
                 command_list.append("--sql")
-                sql = self.replace_sql_param(command_value["delete_sql"], vars, init_day)
+                sql = self.replace_sql_param(command_value["delete_sql"], vars, init_day, fmt)
                 command_list.append(sql)
             if command_value.has_key("query") and command_value["query"]:
                 command_list.append("--query")
-                hql = self.replace_sql_param(command_value["query"], vars, init_day)
+                hql = self.replace_sql_param(command_value["query"], vars, init_day, fmt)
                 command_list.append(hql)
             if command_value.has_key("mysql_instance"):
                 command_list.append("--instance")
@@ -254,7 +254,7 @@ class YamlParser(object):
                 command_list.append(command_value['hive_db'])
             if command_value.has_key("query_sql"):
                 command_list.append("--query_sql")
-                query_sql = self.replace_sql_param(command_value["query_sql"], vars, init_day)
+                query_sql = self.replace_sql_param(command_value["query_sql"], vars, init_day, fmt)
                 command_list.append(query_sql)
             # 邮件输出类型(附件 or 邮件正文html)
             command_list.append("--output")
@@ -287,7 +287,7 @@ class YamlParser(object):
                 partition_format = None
                 if command_value.has_key('partition_format') and command_value['partition_format']:
                     partition_format = command_value['partition_format'].strip()
-                partition_value = self.replace_sql_param(partition_value, vars, init_day, partition_format)
+                partition_value = self.replace_sql_param(partition_value, vars, init_day, partition_format, fmt)
                 command_list.append(partition_value)
             return command_list
         if command_key == 'hiveserver2hive':
@@ -307,12 +307,12 @@ class YamlParser(object):
             if command_value.has_key("partition") and command_value['partition']:
                 command_list.append("--partition")
                 partition_value = command_value['partition']
-                partition_value = self.replace_sql_param(partition_value, vars, init_day)
+                partition_value = self.replace_sql_param(partition_value, vars, init_day, fmt)
                 command_list.append(partition_value)
             if command_value.has_key("where") and command_value['where']:
                 command_list.append("--where")
                 partition_value = command_value['where']
-                partition_value = self.replace_sql_param(partition_value, vars, init_day)
+                partition_value = self.replace_sql_param(partition_value, vars, init_day, fmt)
                 command_list.append(partition_value)
             if command_value.has_key("query_sql") and command_value['query_sql']:
                 command_list.append("--query-sql")
