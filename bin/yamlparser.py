@@ -149,6 +149,7 @@ class YamlParser(object):
         mysql2hive = project_path + '/export/mysql2hive.py'
         mongo2hive = project_path + '/export/mongo2hive.py'
         hive2mysql = project_path + '/export/hive2mysql.py'
+        hive2clickhouse = project_path + '/export/hive2clickhouse.py'
         hive2excel = project_path + '/export/hive2excel.py'
         odps2hive = project_path + '/export/odps2hive.py'
         hiveserver2hive = project_path + '/export/hiveserver2hive.py'
@@ -237,6 +238,38 @@ class YamlParser(object):
             command_list.append(command_value['mysql_db'])
             command_list.append("--columns")
             command_list.append(command_value['mysql_columns'])
+            return command_list
+        if command_key == 'hive2clickhouse':
+            command_list.append(hive2clickhouse)
+            vars = {}
+            if command_value.has_key("vars") and command_value["vars"]:
+                vars = command_value["vars"]
+            if command_value.has_key("delete_sql") and command_value["delete_sql"]:
+                command_list.append("--delete_sql")
+                sql = self.replace_sql_param(command_value["delete_sql"], vars, init_day, fmt)
+                command_list.append(sql)
+            if command_value.has_key("query") and command_value["query"]:
+                command_list.append("--query")
+                hql = self.replace_sql_param(command_value["query"], vars, init_day, fmt)
+                command_list.append(hql)
+            if command_value.has_key("clickhouse_cluster"):
+                command_list.append("--clickhouse_cluster")
+                command_list.append(command_value["clickhouse_cluster"])
+            else:
+                command_list.append("--clickhouse_cluster")
+                command_list.append("secoo_cluster_one")
+            command_list.append("--hive")
+            command_list.append(command_value['hive_db'])
+            command_list.append("--to")
+            command_list.append(command_value['clickhouse_db_table'])
+            command_list.append("--columns")
+            command_list.append(command_value['clickhouse_columns'])
+            command_list.append("--type")
+            command_list.append("export")
+            command_list.append("--op")
+            command_list.append("hive2clickhouse")
+            command_list.append("--spark_submit_conf")
+            command_list.append(command_value['spark_submit_conf'])
             return command_list
         if command_key == 'hive2excel':
             command_list.append(hive2excel)
