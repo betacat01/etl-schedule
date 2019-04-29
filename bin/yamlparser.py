@@ -151,6 +151,7 @@ class YamlParser(object):
         hive2mysql = project_path + '/export/hive2mysql.py'
         hive2clickhouse = project_path + '/export/hive2clickhouse.py'
         hive2kafka = project_path + '/export/hive2kafka.py'
+        kafka2hdfs = project_path + '/export/kafka2hdfs.py'
         hive2excel = project_path + '/export/hive2excel.py'
         odps2hive = project_path + '/export/odps2hive.py'
         hiveserver2hive = project_path + '/export/hiveserver2hive.py'
@@ -298,6 +299,30 @@ class YamlParser(object):
             command_list.append("hive2kafka")
             command_list.append("--spark_submit_conf")
             command_list.append(command_value['spark_submit_conf'])
+            return command_list
+        if command_key == 'kafka2hdfs':
+            command_list.append(kafka2hdfs)
+            vars = {}
+            if command_value.has_key("vars") and command_value["vars"]:
+                vars = command_value["vars"]
+            if command_value.has_key("kafka_cluster"):
+                command_list.append("--kafka_cluster")
+                command_list.append(command_value["kafka_cluster"])
+            command_list.append("--kafka_topic")
+            command_list.append(command_value['kafka_topic'])
+            if command_value.has_key("consumer_group"):
+                command_list.append("--consumer_group")
+                command_list.append(command_value["consumer_group"])
+            command_list.append("--hdfs_path")
+            hdfs_path = self.replace_sql_param(command_value["hdfs_path"], vars, init_day, fmt)
+            command_list.append(hdfs_path)
+            if command_value.has_key("kafka_consumer_conf"):
+                command_list.append("--kafka_consumer_conf")
+                command_list.append(command_value["kafka_consumer_conf"])
+            command_list.append("--type")
+            command_list.append("export")
+            command_list.append("--op")
+            command_list.append("kafka2hdfs")
             return command_list
         if command_key == 'hive2excel':
             command_list.append(hive2excel)
