@@ -67,9 +67,8 @@ def run(options, args):
 
         print("kafka_hadoop_loader_submit_command:" + str(kafka_hadoop_loader_submit_command))
 
-        # code = os.system(kafka_hadoop_loader_submit_command)
-        # return code
-        return 1
+        code = os.system(kafka_hadoop_loader_submit_command)
+        return code
     except Exception, e:
         print(e)
         return -1
